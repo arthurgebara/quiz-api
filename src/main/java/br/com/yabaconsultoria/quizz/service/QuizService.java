@@ -144,20 +144,20 @@ public class QuizService {
             case "Asma":
             case "DPOC":
                 specialist = "pneumologista";
-                link = "http://link_pneumologista.com";
+                link = "https://www.doctoralia.com.br/pesquisa?q=Pneumologista&loc=&filters%5Bspecializations%5D%5B%5D=72&filters%5Bonline_only%5D=1";
                 break;
             case "Rinossinusite Crônica":
             case "Polipose Nasal":
                 specialist = "otorrinolaringologista";
-                link = "http://link_otorrino.com";
+                link = "https://www.doctoralia.com.br/pesquisa?q=Otorrino&loc=&filters%5Bonline_only%5D%5B%5D=true&filters%5Bspecializations%5D%5B%5D=69&sorter=";
                 break;
             case "Dermatite Atópica":
                 specialist = "dermatologista";
-                link = "http://link_dermatologista.com";
+                link = "https://www.doctoralia.com.br/pesquisa?q=Dermatologista&loc=&filters%5Bspecializations%5D%5B%5D=24&filters%5Bonline_only%5D=1";
                 break;
             default:
                 specialist = "especialista";
-                link = "http://link_especialista.com";
+                link = "https://www.doctoralia.com.br/";
                 break;
         }
 
