@@ -40,7 +40,7 @@ public class QuizService {
     @Value("${mail.from}")
     private String mailFrom;
 
-    @Value("${mail.from.name}")
+    @Value("Conexão Saúde")
     private String mailFromName;
 
     @Autowired
