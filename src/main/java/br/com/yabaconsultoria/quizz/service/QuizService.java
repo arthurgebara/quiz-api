@@ -4,13 +4,22 @@ import br.com.yabaconsultoria.quizz.model.*;
 import br.com.yabaconsultoria.quizz.repository.QuestionRepository;
 import br.com.yabaconsultoria.quizz.repository.QuizRepository;
 import br.com.yabaconsultoria.quizz.repository.QuizResultRepository;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Service
@@ -24,6 +33,18 @@ public class QuizService {
 
     @Autowired
     QuizResultRepository quizResultRepository;
+
+    @Autowired
+    private JavaMailSender mailSender;
+
+    @Value("${mail.from}")
+    private String mailFrom;
+
+    @Value("${mail.from.name}")
+    private String mailFromName;
+
+    @Autowired
+    private TemplateEngine templateEngine;
 
     private static final Logger logger = LoggerFactory.getLogger(QuizService.class);
 
@@ -102,6 +123,61 @@ public class QuizService {
         quizResult.setEmail(email);
         quizResultRepository.save(quizResult);
 
+        // Enviar resultado por e-mail
+        try {
+            sendEmailResult(name, email, predominantPathology);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
         return new ResponseEntity<>(right, HttpStatus.OK);
+    }
+    private void sendEmailResult(String name, String email, String predominantPathology) throws MessagingException {
+        String subject = "Resultado do Quiz";
+        String to = email;
+
+        // Determinar o especialista e o link com base na patologia predominante
+        String specialist;
+        String link;
+        switch (predominantPathology) {
+            case "Asma":
+            case "DPOC":
+                specialist = "pneumologista";
+                link = "http://link_pneumologista.com";
+                break;
+            case "Rinossinusite Crônica":
+            case "Polipose Nasal":
+                specialist = "otorrinolaringologista";
+                link = "http://link_otorrino.com";
+                break;
+            case "Dermatite Atópica":
+                specialist = "dermatologista";
+                link = "http://link_dermatologista.com";
+                break;
+            default:
+                specialist = "especialista";
+                link = "http://link_especialista.com";
+                break;
+        }
+
+        // Configurar o contexto do Thymeleaf
+        Context context = new Context();
+        context.setVariable("name", name);
+        context.setVariable("specialist", specialist);
+        context.setVariable("link", link);
+
+        // Processar o template
+        String body = templateEngine.process("emailTemplate", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
+
+        helper.setSubject(subject);
+        helper.setFrom(new InternetAddress("Conexão Saúde <" + this.mailFrom + ">"));
+        helper.setTo(to);
+        helper.setText(body, true); // Set to true to enable HTML content
+
+        mailSender.send(message);
     }
 }

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Resultado do Quiz</title>
+    <meta charset="UTF-8"/>
+</head>
+<body>
+<p>Olá <span th:text="${name}">[Nome]</span>,</p>
+
+<p>Obrigado por completar o quiz. Conforme respostas enviada no questionário, você apresenta sintomas dos quais você deve procurar um <span th:text="${specialist}">[Especialista]</span> <a th:href="${link}">aqui</a>.</p>
+
+<p>Atenciosamente,<br/>Sua Equipe</p>
+</body>
+</html>
